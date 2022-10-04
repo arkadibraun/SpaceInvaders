@@ -11,6 +11,7 @@
 
 #region Using Statements
 
+using GameStateManagement.Class;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Content;
@@ -37,8 +38,8 @@ namespace GameStateManagement
         private ContentManager Content;
         private SpriteFont gameFont;
 
-        private Vector2 playerPosition = new Vector2(100, 100);
-        private Vector2 enemyPosition = new Vector2(100, 100);
+        //private Vector2 playerPosition = new Vector2(100, 100);
+        //private Vector2 enemyPosition = new Vector2(100, 100);
 
         private Random random = new Random();
 
@@ -47,6 +48,8 @@ namespace GameStateManagement
         #endregion Fields
 
         #region Variablen
+
+        private Player player;
 
         // Grafische Ausgabe
         private GraphicsDeviceManager _graphics;
@@ -66,20 +69,20 @@ namespace GameStateManagement
         private KeyboardState previousKeyboardState;
 
         // Sprites
-        private Texture2D ShipTexture;
+        //private Texture2D ShipTexture;
         private Texture2D StarTexture;
-        private Texture2D LaserTexture;
+        //private Texture2D LaserTexture;
         private Texture2D EnemyTexture;
 
         // Raumschiff Variablen
-        private Vector2 shipPosition;
+        //private Vector2 shipPosition;
 
-        private float shipSpeed = 5f;
+        //private float shipSpeed = 5f;
 
         // Laser Variablen
         private List<Vector2> laserShots = new List<Vector2>();
 
-        private float laserSpeed = 10f;
+        //private float laserSpeed = 10f;
 
         // Gegner Variablen
         private readonly List<Vector2> enemyPositions = new List<Vector2>();
@@ -90,7 +93,7 @@ namespace GameStateManagement
         private Color enemyColor;
 
         // Sound Effekte
-        private SoundEffect laserSound;
+        //private SoundEffect laserSound;
 
         private SoundEffect explosionSound;
 
@@ -126,6 +129,10 @@ namespace GameStateManagement
             if (Content == null)
                 Content = new ContentManager(ScreenManager.Game.Services, "Content");
             
+            if(player == null)
+            {
+                player = new Player(Content.Load<Texture2D>("ship"), Content.Load<Texture2D>("laser"), Content.Load<SoundEffect>("laserfire"));
+            }
 
             // Ein SpriteBatch zum Zeichnen
             _spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
@@ -143,8 +150,8 @@ namespace GameStateManagement
             // TODO
             // Texturen laden
             StarTexture = Content.Load<Texture2D>("starfield");
-            ShipTexture = Content.Load<Texture2D>("ship");
-            LaserTexture = Content.Load<Texture2D>("laser");
+            //ShipTexture = Content.Load<Texture2D>("ship");
+            //LaserTexture = Content.Load<Texture2D>("laser");
             EnemyTexture = Content.Load<Texture2D>("enemy");
 
 
@@ -155,12 +162,13 @@ namespace GameStateManagement
             // TODO
             // Sounds laden
             explosionSound = Content.Load<SoundEffect>("explosion");
-            laserSound = Content.Load<SoundEffect>("laserfire");
+            //laserSound = Content.Load<SoundEffect>("laserfire");
             SoundEffect.MasterVolume = 0.05f;
 
             // Das Raumschiff positionieren
-            shipPosition.X = viewport.Width / 2;
-            shipPosition.Y = viewport.Height - 100;
+            //shipPosition.X = viewport.Width / 2;
+            //shipPosition.Y = viewport.Height - 100;
+            player.setShipPosition(new Vector2(viewport.Width/2, viewport.Height - 100));
 
             // Radius der Feinde festlegen
             if (EnemyTexture != null)
@@ -218,14 +226,15 @@ namespace GameStateManagement
             }*/
 
             // Prevent the person from moving off of the screen
-            shipPosition.X = MathHelper.Clamp(shipPosition.X,
-                safeBounds.Left, safeBounds.Right - ShipTexture.Width);
-
+            //shipPosition.X = MathHelper.Clamp(shipPosition.X,
+            //    safeBounds.Left, safeBounds.Right - ShipTexture.Width);
+            player.setShipPosition(new Vector2(MathHelper.Clamp(player.getShipPosition().X, safeBounds.Left, safeBounds.Right - player.getShipTexture().Width), player.getShipPosition().Y));
 
             // Space
             if (IsNewKeyPressed(Keys.Space))
             {
-                FireLaser();
+                //FireLaser();
+                player.FireLaser(laserShots);
             }
 
             previousKeyboardState = currentKeyboardState;
@@ -275,15 +284,17 @@ namespace GameStateManagement
 
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    MoveShipLeft();
+                    //MoveShipLeft();
+                    player.MoveShipLeft();
                 }
 
                 if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    MoveShipRight();
+                    //MoveShipRight();
+                    player.MoveShipRight();
                 }
 
-                Vector2 thumbstick = gamePadState.ThumbSticks.Left;
+                /*Vector2 thumbstick = gamePadState.ThumbSticks.Left;
 
                 movement.X += thumbstick.X;
                 movement.Y -= thumbstick.Y;
@@ -293,7 +304,7 @@ namespace GameStateManagement
                     movement.Normalize();
                 }
 
-                playerPosition += movement * 2;
+                playerPosition += movement * 2;*/
             }
         }
 
@@ -377,43 +388,7 @@ namespace GameStateManagement
             }
         }
 
-        public void FireLaser()
-        {
-            // aktuelle Position des Schiffes auf dem Bildschirm speichern
-            Vector2 position = shipPosition;
-
-            // Laserschuss vor das Schiff mittig platzieren
-            position.Y -= ShipTexture.Height / 2;
-            position.X -= LaserTexture.Width / 2;
-
-            // Position in der Liste speichern
-            laserShots.Add(position);
-
-            PlayLaserSound();
-        }
-
-        public void MoveShipLeft()
-        {
-            // TODO
-            // Schiff nach links bewegen und verhindern, 
-            // dass das Schiff den Bildschirm verlässt
-            if (Keyboard.GetState().IsKeyDown(Keys.Left))
-            {
-                shipPosition.X -= shipSpeed;
-            }
-
-        }
-
-        public void MoveShipRight()
-        {
-            // TODO
-            // Schiff nach rechts bewegen und verhindern, 
-            // dass das Schiff den Bildschirm verlässt
-            if (Keyboard.GetState().IsKeyDown(Keys.Right))
-            {
-                shipPosition.X += shipSpeed;
-            }
-        }
+        
 
         #region Update von Lasern und Gegnern
 
@@ -432,7 +407,8 @@ namespace GameStateManagement
                 {
                     // Position des Schusses aktualiesieren
                     Vector2 pos = laserShots[laserIndex];
-                    pos.Y -= laserSpeed;
+                    //pos.Y -= laserSpeed;
+                    pos.Y -= player.getLaserSpeed();
                     laserShots[laserIndex] = pos;
 
                     // Überprüfen ob ein Treffer vorliegt
@@ -511,7 +487,7 @@ namespace GameStateManagement
         {
             // TODO
             // Laserschuss WAV abspielen
-            laserSound.Play();
+            //laserSound.Play();
 
         }
         public bool IsNewKeyPressed(Keys key)
@@ -531,7 +507,8 @@ namespace GameStateManagement
         {
             // TODO
             // Das Schiff mittig an den Koordinaten des Schiffes (shipPosition) zeichnen 
-            _spriteBatch.Draw(ShipTexture, shipPosition, Color.White);
+            //_spriteBatch.Draw(ShipTexture, shipPosition, Color.White);
+            _spriteBatch.Draw(player.getShipTexture(), player.getShipPosition(), Color.White);
         }
 
         private void DrawLaser()
@@ -541,7 +518,8 @@ namespace GameStateManagement
             // und alle Schüsse (LaserTexture) zeichnen
             foreach (Vector2 laser in laserShots)
             {
-                _spriteBatch.Draw(LaserTexture, laser, Color.Green);
+                //_spriteBatch.Draw(LaserTexture, laser, Color.Green);
+                _spriteBatch.Draw(player.getLaserTexture(), laser, Color.Green);
             }
         }
 
