@@ -50,7 +50,7 @@ namespace GameStateManagement
         #region Variablen
 
         private Player player;
-
+        private Enemy enemy;
         // Grafische Ausgabe
         private GraphicsDeviceManager _graphics;
 
@@ -61,6 +61,7 @@ namespace GameStateManagement
 
         // Viewport
         private Viewport viewport;
+        
 
 
         // Tastatur abfragen
@@ -85,17 +86,11 @@ namespace GameStateManagement
         //private float laserSpeed = 10f;
 
         // Gegner Variablen
-        private readonly List<Vector2> enemyPositions = new List<Vector2>();
-
-        private Vector2 enemyStartPosition = new Vector2(100, 100);
-        private float enemyRadius;
-        private float enemySpeed = 1f;
-        private Color enemyColor;
 
         // Sound Effekte
         //private SoundEffect laserSound;
 
-        private SoundEffect explosionSound;
+        
 
         // Spieler-Punkte und Zeichenposition der Punkte
         private int playerScore;
@@ -134,6 +129,11 @@ namespace GameStateManagement
                 player = new Player(Content.Load<Texture2D>("ship"), Content.Load<Texture2D>("laser"), Content.Load<SoundEffect>("laserfire"));
             }
 
+            if (enemy == null)
+            {
+                enemy = new Enemy(Content.Load<Texture2D>("enemy"), Content.Load<SoundEffect>("explosion"));
+            }
+
             // Ein SpriteBatch zum Zeichnen
             _spriteBatch = new SpriteBatch(ScreenManager.GraphicsDevice);
 
@@ -161,7 +161,7 @@ namespace GameStateManagement
 
             // TODO
             // Sounds laden
-            explosionSound = Content.Load<SoundEffect>("explosion");
+
             //laserSound = Content.Load<SoundEffect>("laserfire");
             SoundEffect.MasterVolume = 0.05f;
 
@@ -171,20 +171,7 @@ namespace GameStateManagement
             player.setShipPosition(new Vector2(viewport.Width/2, viewport.Height - 100));
 
             // Radius der Feinde festlegen
-            if (EnemyTexture != null)
-            {
-                if (EnemyTexture.Width > EnemyTexture.Height)
-                {
-                    enemyRadius = EnemyTexture.Width;
-                }
-                else
-                {
-                    enemyRadius = EnemyTexture.Height;
-                }
-
-                // Gegner erzeugen
-                CreateEnemies();
-            }
+            enemy.calcRadius();
 
             // Position der Score Ausgabe festlegen
             scorePosition = new Vector2(25, 25);
@@ -241,7 +228,7 @@ namespace GameStateManagement
 
             if (!otherScreenHasFocus)
             {
-                UpdateEnemies();
+                enemy.UpdateEnemies();
             }
             
             UpdateLaserShots();
@@ -340,53 +327,7 @@ namespace GameStateManagement
         #endregion Update and Draw
 
         #region Methods
-        public void CreateEnemies()
-        {
-            // Feinde erzeugen
-            Vector2 position = enemyStartPosition;
-            position.X -= EnemyTexture.Width / 2;
 
-            // Eine Zufallszahl zwischen 3 und 10 ermitteln
-            int count = random.Next(3, 11);
-
-            // Gegener erzeugen
-            for (int i = 0; i < count; i++)
-            {
-                enemyPositions.Add(position);
-                position.X += EnemyTexture.Width + 15f;
-            }
-
-            // Farbwert ändern
-            switch (count)
-            {
-                case 3:
-                    enemyColor = Color.Red;
-                    break;
-                case 4:
-                    enemyColor = Color.Green;
-                    break;
-                case 5:
-                    enemyColor = Color.Yellow;
-                    break;
-                case 6:
-                    enemyColor = Color.Blue;
-                    break;
-                case 7:
-                    enemyColor = Color.Magenta;
-                    break;
-                case 8:
-                    enemyColor = Color.Yellow;
-                    break;
-                case 9:
-                    enemyColor = Color.White;
-                    break;
-                case 10:
-                    enemyColor = Color.DarkGreen;
-                    break;
-                default:
-                    break;
-            }
-        }
 
         
 
@@ -414,22 +355,22 @@ namespace GameStateManagement
                     // Überprüfen ob ein Treffer vorliegt
                     int enemyIndex = 0;
 
-                    while (enemyIndex < enemyPositions.Count)
+                    while (enemyIndex < enemy.getEnemyPositions().Count)
                     {
                         // Abstand zwischen Feind-Position und Schuss-Position ermitteln
-                        float distance = Vector2.Distance(enemyPositions[enemyIndex], laserShots[laserIndex]);
+                        float distance = Vector2.Distance(enemy.getEnemyPositions()[enemyIndex], laserShots[laserIndex]);
 
                         // Treffer?
-                        if (distance < enemyRadius)
+                        if (distance < enemy.getEnemyRadius())
                         {
                             // Schuss entfernen
                             laserShots.RemoveAt(laserIndex);
                             // Feind entfernen
-                            enemyPositions.RemoveAt(enemyIndex);
+                            enemy.getEnemyPositions().RemoveAt(enemyIndex);
                             // Punkte erhöhen
                             playerScore++;
 
-                            PlayExplosionSound();
+                            enemy.PlayExplosionSound();
 
                             // Schleife verlassen
                             break;
@@ -444,35 +385,7 @@ namespace GameStateManagement
             }
         }
 
-        public void UpdateEnemies()
-        {
-            // Startposition verändern
-            enemyStartPosition.X += enemySpeed;
 
-            // Bewegungsrichtung umkehren
-            if (enemyStartPosition.X > 250)
-            {
-                enemySpeed *= -1;
-            }
-            else if (enemyStartPosition.X < 100f)
-            {
-                enemySpeed *= -1;
-            }
-
-            // Alle Feinde abgeschossen? Dann Neue Gegener
-            if (enemyPositions.Count == 0 && EnemyTexture != null)
-            {
-                CreateEnemies();
-            }
-
-            // Aktualisieren
-            for (int i = 0; i < enemyPositions.Count; i++)
-            {
-                Vector2 position = enemyPositions[i];
-                position.X += enemySpeed;
-                enemyPositions[i] = position;
-            }
-        }
 
         #endregion
 
@@ -480,7 +393,7 @@ namespace GameStateManagement
         {
             // TODO
             // Explosions WAV abspielen
-            explosionSound.Play();
+            //explosionSound.Play();
         }
 
         public void PlayLaserSound()
@@ -528,9 +441,9 @@ namespace GameStateManagement
             // TODO
             // Die Liste mit allen Gegnern (enemyPositions) durchlaufen
             // und alle Feinde (EnemyTexture) zeichnen
-            foreach (Vector2 enemy in enemyPositions)
+            foreach (Vector2 enemypos in enemy.getEnemyPositions())
             {
-                _spriteBatch.Draw(EnemyTexture, enemy, enemyColor);
+                _spriteBatch.Draw(enemy.getEnemyTexture(), enemypos, enemy.getEnemyColor());
             }
         }
 
