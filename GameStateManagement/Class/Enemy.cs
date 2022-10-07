@@ -30,9 +30,20 @@ namespace GameStateManagement.Class
         {
             this.EnemyTexture = EnemyTexture;
             this.explosionSound = explosionSound;
-
+            
         }
 
+        #region Sound
+        public void PlayExplosionSound()
+        {
+            explosionSound.Play();
+        }
+
+        #endregion
+
+        #region Methods
+
+        // Radius
         public void calcRadius()
         {
             if (EnemyTexture != null)
@@ -52,12 +63,6 @@ namespace GameStateManagement.Class
 
         }
 
-
-        public void PlayExplosionSound()
-        {
-            explosionSound.Play();
-        }
-
         public void CreateEnemies()
         {
             // Feinde erzeugen
@@ -73,7 +78,6 @@ namespace GameStateManagement.Class
                 enemyPositions.Add(position);
                 position.X += EnemyTexture.Width + 15f;
             }
-
             // Farbwert ändern
             switch (count)
             {
@@ -106,7 +110,6 @@ namespace GameStateManagement.Class
             }
         }
 
-
         public void UpdateEnemies()
         {
             // Startposition verändern
@@ -136,11 +139,9 @@ namespace GameStateManagement.Class
                 enemyPositions[i] = position;
             }
         }
+        #endregion
 
-
-
-
-
+        #region GetterSetter
         public Texture2D getEnemyTexture()
         {
             return EnemyTexture;
@@ -156,52 +157,11 @@ namespace GameStateManagement.Class
             return enemyRadius;
         }
 
-        public float getEnemySpeed()
-        {
-            return enemySpeed;
-        }
-
         public Color getEnemyColor()
         {
             return enemyColor;
         }
-
-        public SoundEffect getExplosioSound()
-        {
-            return explosionSound;
-        }
-
-        public void setEnemyTexture(Texture2D ene)
-        {
-            this.EnemyTexture = ene;
-        }
-
-        public void setEnemyRadius(float radius)
-        {
-            this.enemyRadius = radius;
-
-        }
-
-        public void setEnemySpeed(float speed)
-        {
-            this.enemySpeed = speed;
-        }
-
-        public void setEnemyColor(Color color)
-        {
-            this.enemyColor = color;
-        }
-
-        public void setExplosionSound(SoundEffect effect)
-        {
-            this.explosionSound = effect;
-        }
-
-
-
-
-
-
+        #endregion
     }
 
 

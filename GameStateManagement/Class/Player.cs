@@ -27,6 +27,8 @@ namespace GameStateManagement.Class
             this.laserSound = laserSound;
         }
 
+        #region Methods
+
         public void FireLaser(List<Vector2> laserShots)
         {
             // aktuelle Position des Schiffes auf dem Bildschirm speichern
@@ -41,13 +43,10 @@ namespace GameStateManagement.Class
 
             laserSound.Play();
         }
-
-        #region Methods
+        
         public void MoveShipLeft()
         {
-            // TODO
-            // Schiff nach links bewegen und verhindern, 
-            // dass das Schiff den Bildschirm verlässt
+            // Schiff bewegen Links
             if (Keyboard.GetState().IsKeyDown(Keys.Left))
             {
                 shipPosition.X -= shipSpeed;
@@ -57,9 +56,7 @@ namespace GameStateManagement.Class
 
         public void MoveShipRight()
         {
-            // TODO
-            // Schiff nach rechts bewegen und verhindern, 
-            // dass das Schiff den Bildschirm verlässt
+            // Schiff bewegen Rechts  
             if (Keyboard.GetState().IsKeyDown(Keys.Right))
             {
                 shipPosition.X += shipSpeed;
@@ -83,11 +80,6 @@ namespace GameStateManagement.Class
             this.shipPosition = position;
         }
 
-        public float getShipSpeed()
-        {
-            return shipSpeed;
-        }
-
         public Texture2D getLaserTexture()
         {
             return LaserTexture;
@@ -98,10 +90,6 @@ namespace GameStateManagement.Class
             return laserSpeed;
         }
         
-        public SoundEffect getLaserSound()
-        {
-            return laserSound;
-        }
         #endregion
     }
 }

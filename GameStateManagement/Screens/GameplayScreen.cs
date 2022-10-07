@@ -36,23 +36,14 @@ namespace GameStateManagement
         #region Fields
 
         private ContentManager Content;
-        private SpriteFont gameFont;
-
-        //private Vector2 playerPosition = new Vector2(100, 100);
-        //private Vector2 enemyPosition = new Vector2(100, 100);
-
-        private Random random = new Random();
-
-        private float pauseAlpha;
 
         #endregion Fields
 
         #region Variablen
 
+
         private Player player;
         private Enemy enemy;
-        // Grafische Ausgabe
-        private GraphicsDeviceManager _graphics;
 
         private SpriteBatch _spriteBatch;
 
@@ -61,44 +52,23 @@ namespace GameStateManagement
 
         // Viewport
         private Viewport viewport;
-        
-
 
         // Tastatur abfragen
         private KeyboardState currentKeyboardState;
-
         private KeyboardState previousKeyboardState;
 
         // Sprites
         //private Texture2D ShipTexture;
         private Texture2D StarTexture;
-        //private Texture2D LaserTexture;
-        private Texture2D EnemyTexture;
-
-        // Raumschiff Variablen
-        //private Vector2 shipPosition;
-
-        //private float shipSpeed = 5f;
 
         // Laser Variablen
-        private List<Vector2> laserShots = new List<Vector2>();
-
-        //private float laserSpeed = 10f;
-
-        // Gegner Variablen
-
-        // Sound Effekte
-        //private SoundEffect laserSound;
-
-        
+        private List<Vector2> laserShots = new List<Vector2>();       
 
         // Spieler-Punkte und Zeichenposition der Punkte
         private int playerScore;
-
         private Vector2 scorePosition;
 
         //Kollision
-        private bool shipHit = false;
         private Rectangle safeBounds;
         private const float SafeAreaPortion = 0.05f;
 
@@ -147,27 +117,16 @@ namespace GameStateManagement
                 (int)(viewport.Width * (1 - 2 * SafeAreaPortion)),
                 (int)(viewport.Height * (1 - 2 * SafeAreaPortion)));
 
-            // TODO
             // Texturen laden
             StarTexture = Content.Load<Texture2D>("starfield");
-            //ShipTexture = Content.Load<Texture2D>("ship");
-            //LaserTexture = Content.Load<Texture2D>("laser");
-            EnemyTexture = Content.Load<Texture2D>("enemy");
 
-
-            // TODO
             // Font laden
             spriteFont = Content.Load<SpriteFont>("Verdana");
 
-            // TODO
-            // Sounds laden
-
-            //laserSound = Content.Load<SoundEffect>("laserfire");
-            SoundEffect.MasterVolume = 0.05f;
+            //Sound lautstärke
+            SoundEffect.MasterVolume = 0.025f;
 
             // Das Raumschiff positionieren
-            //shipPosition.X = viewport.Width / 2;
-            //shipPosition.Y = viewport.Height - 100;
             player.setShipPosition(new Vector2(viewport.Width/2, viewport.Height - 100));
 
             // Radius der Feinde festlegen
@@ -200,32 +159,18 @@ namespace GameStateManagement
         {
             currentKeyboardState = Keyboard.GetState();
 
-            /*// Left
-            if (currentKeyboardState.IsKeyDown(Keys.Left))
-            {
-                MoveShipLeft();
-            }
-
-            // Right
-            if (currentKeyboardState.IsKeyDown(Keys.Right))
-            {
-                MoveShipRight();
-            }*/
-
             // Prevent the person from moving off of the screen
-            //shipPosition.X = MathHelper.Clamp(shipPosition.X,
-            //    safeBounds.Left, safeBounds.Right - ShipTexture.Width);
             player.setShipPosition(new Vector2(MathHelper.Clamp(player.getShipPosition().X, safeBounds.Left, safeBounds.Right - player.getShipTexture().Width), player.getShipPosition().Y));
 
             // Space
             if (IsNewKeyPressed(Keys.Space))
             {
-                //FireLaser();
                 player.FireLaser(laserShots);
             }
 
             previousKeyboardState = currentKeyboardState;
 
+            //Enemy pause 
             if (!otherScreenHasFocus)
             {
                 enemy.UpdateEnemies();
@@ -267,31 +212,16 @@ namespace GameStateManagement
             else
             {
                 // Otherwise move the player position.
-                Vector2 movement = Vector2.Zero;
-
+                // player bewegung
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
-                    //MoveShipLeft();
                     player.MoveShipLeft();
                 }
 
                 if (keyboardState.IsKeyDown(Keys.Right))
                 {
-                    //MoveShipRight();
                     player.MoveShipRight();
                 }
-
-                /*Vector2 thumbstick = gamePadState.ThumbSticks.Left;
-
-                movement.X += thumbstick.X;
-                movement.Y -= thumbstick.Y;
-
-                if (movement.Length() > 1)
-                {
-                    movement.Normalize();
-                }
-
-                playerPosition += movement * 2;*/
             }
         }
 
@@ -325,11 +255,7 @@ namespace GameStateManagement
         }
 
         #endregion Update and Draw
-
-        #region Methods
-
-
-        
+                
 
         #region Update von Lasern und Gegnern
 
@@ -385,24 +311,10 @@ namespace GameStateManagement
             }
         }
 
-
-
         #endregion
 
-        public void PlayExplosionSound()
-        {
-            // TODO
-            // Explosions WAV abspielen
-            //explosionSound.Play();
-        }
+        #region methods
 
-        public void PlayLaserSound()
-        {
-            // TODO
-            // Laserschuss WAV abspielen
-            //laserSound.Play();
-
-        }
         public bool IsNewKeyPressed(Keys key)
         {
             return currentKeyboardState.IsKeyDown(key) &&
@@ -453,6 +365,6 @@ namespace GameStateManagement
             // Die Punkte (playerScore) oben links (scorePosition) anzeigen
             _spriteBatch.DrawString(spriteFont, "Highscore: " + playerScore, scorePosition, Color.White);
         }
+        #endregion methods
     }
-    #endregion
 }
