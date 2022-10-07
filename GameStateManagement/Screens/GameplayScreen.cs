@@ -40,22 +40,22 @@ namespace GameStateManagement
         #endregion Fields
 
         #region Variablen
+        private SpriteBatch _spriteBatch;
 
-
+        // player
         private Player player;
+
+        //enemy
         private Enemy enemy;
 
-        private SpriteBatch _spriteBatch;
+        //controller
+        private Controller controller;     
 
         // Font
         private SpriteFont spriteFont;
 
         // Viewport
         private Viewport viewport;
-
-        // Tastatur abfragen
-        private KeyboardState currentKeyboardState;
-        private KeyboardState previousKeyboardState;
 
         // Sprites
         //private Texture2D ShipTexture;
@@ -73,7 +73,6 @@ namespace GameStateManagement
         private const float SafeAreaPortion = 0.05f;
 
         #endregion Variablen
-
 
         #region Initialization
 
@@ -102,6 +101,11 @@ namespace GameStateManagement
             if (enemy == null)
             {
                 enemy = new Enemy(Content.Load<Texture2D>("enemy"), Content.Load<SoundEffect>("explosion"));
+            }
+
+            if(controller == null)
+            {
+                controller = new Controller();
             }
 
             // Ein SpriteBatch zum Zeichnen
@@ -157,19 +161,20 @@ namespace GameStateManagement
         public override void Update(GameTime gameTime, bool otherScreenHasFocus,
                                                        bool coveredByOtherScreen)
         {
-            currentKeyboardState = Keyboard.GetState();
+            //CurrentKeyboardState
+            controller.setCurrentKeyboardState(Keyboard.GetState());
 
             // Prevent the person from moving off of the screen
             player.setShipPosition(new Vector2(MathHelper.Clamp(player.getShipPosition().X, safeBounds.Left, safeBounds.Right - player.getShipTexture().Width), player.getShipPosition().Y));
 
             // Space
-            if (IsNewKeyPressed(Keys.Space))
+            if (controller.IsNewKeyPressed(Keys.Space))
             {
                 player.FireLaser(laserShots);
             }
 
-            previousKeyboardState = currentKeyboardState;
-
+            controller.setPreviousKeyboardState(controller.getCurrentKeyboardState());
+            
             //Enemy pause 
             if (!otherScreenHasFocus)
             {
@@ -212,7 +217,7 @@ namespace GameStateManagement
             else
             {
                 // Otherwise move the player position.
-                // player bewegung
+                // player movement
                 if (keyboardState.IsKeyDown(Keys.Left))
                 {
                     player.MoveShipLeft();
@@ -255,8 +260,7 @@ namespace GameStateManagement
         }
 
         #endregion Update and Draw
-                
-
+               
         #region Update von Lasern und Gegnern
 
         public void UpdateLaserShots()
@@ -314,13 +318,7 @@ namespace GameStateManagement
         #endregion
 
         #region methods
-
-        public bool IsNewKeyPressed(Keys key)
-        {
-            return currentKeyboardState.IsKeyDown(key) &&
-                    !previousKeyboardState.IsKeyDown(key);
-        }
-
+     
         private void DrawBackground()
         {
             // TODO

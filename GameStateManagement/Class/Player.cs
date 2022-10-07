@@ -12,20 +12,23 @@ namespace GameStateManagement.Class
 {
     internal class Player
     {
+        #region Variables
         private Texture2D ShipTexture;
         private Vector2 shipPosition;
         private float shipSpeed = 5f;
-
         private Texture2D LaserTexture;
         private float laserSpeed = 10f;
         private SoundEffect laserSound;
+        #endregion
 
+        #region Constructor
         public Player(Texture2D shipTexture, Texture2D laserTexture, SoundEffect laserSound)
         {
             this.ShipTexture = shipTexture;
             this.LaserTexture = laserTexture;
             this.laserSound = laserSound;
         }
+        #endregion
 
         #region Methods
 

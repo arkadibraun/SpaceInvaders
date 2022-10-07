@@ -13,9 +13,8 @@ namespace GameStateManagement.Class
 {
     internal class Enemy
     {
+        #region Variables
         private Texture2D EnemyTexture;
-
-
         private readonly List<Vector2> enemyPositions = new List<Vector2>();
 
         private Vector2 enemyStartPosition = new Vector2(100, 100);
@@ -23,15 +22,17 @@ namespace GameStateManagement.Class
         private float enemySpeed = 1f;
         private Color enemyColor;
         private SoundEffect explosionSound;
-        private Random random = new Random();
+        private static Random random = new Random();
+        #endregion
 
-
+        #region Constructor
         public Enemy(Texture2D EnemyTexture, SoundEffect explosionSound)
         {
             this.EnemyTexture = EnemyTexture;
             this.explosionSound = explosionSound;
             
         }
+        #endregion
 
         #region Sound
         public void PlayExplosionSound()
